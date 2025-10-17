@@ -99,7 +99,19 @@ router.post("/login", async (req, res) => {
       }
     );
 
-    res.json({ token });
+    res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        currency_id: user.currency_id,
+        price_per_lead: user.price_per_lead,
+        website: user.website,
+        phone_number: user.phone_number,
+        phone_number_country_id: user.phone_number_country_id,
+      },
+      auth_token: token,
+    });
   } catch (err) {
     console.error(err);
     res.status(400).json({ error: err.message });
