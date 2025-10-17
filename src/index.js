@@ -8,7 +8,11 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const allowlist = ["http://localhost:5173", "http://localhost:3000"];
+const allowlist = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://app.omaza.ai",
+];
 
 // 1) Stripe webhook must read the raw body — define BEFORE json middleware
 app.post(
