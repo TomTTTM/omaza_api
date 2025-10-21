@@ -127,23 +127,35 @@ router.get("/me", auth, async (req, res) => {
   res.json({ ...user.dataValues });
 });
 
+// GET /api/stripe/me/payment-method
 router.get("/payment-method", auth, async (req, res) => {
   try {
     const appUser = await User.findByPk(req.user.id);
     if (!appUser) return res.status(404).json({ error: "User not found" });
 
     const email = (appUser.email || "").trim().toLowerCase();
-    if (!email) return res.json({ exists: false, customerId: null });
 
-    // Prefer Search API (more accurate than list)
-    const found = await stripe.customers.search({
-      query: `email:'${email}'`,
-      limit: 1,
-    });
+    if (!email)
+      return res.json({ has_payment_method: false, customerId: null });
 
-    const customer = found.data[0] || null;
+    const list = await stripe.customers.list({ email, limit: 10 });
+
+    customer = list.data[0] || null;
+
+    if (!customer) {
+      return res.json({ has_payment_method: false, customerId: null });
+    }
+
+    // // 3) Check attached payment methods (cards)
+    // const pms = await stripe.paymentMethods.list({
+    //   customer: customer.id,
+    //   type: "card",
+    // });
+
     return res.json({
-      has_payment_method: !!customer,
+      has_payment_method: customer.lenght !== 0,
+      // customerId: customer.id,
+      // payment_method_ids: pms.data.map((pm) => pm.id), // optional
     });
   } catch (err) {
     console.error(err);

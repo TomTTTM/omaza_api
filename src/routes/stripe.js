@@ -7,13 +7,21 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // Create a PaymentIntent (client_secret returned to client)
 router.post("/setup-intent", async (req, res) => {
   try {
-    const { customerId } = req.body; // create or reuse a Stripe customer id
-    const customer = customerId || (await stripe.customers.create()).id;
+    const { customerId, email } = req.body;
+
+    // If we’re creating a new customer, include email (and name/metadata if you have it)
+    const customer =
+      customerId ||
+      (
+        await stripe.customers.create({
+          email: (email || "").trim().toLowerCase(),
+        })
+      ).id;
 
     const si = await stripe.setupIntents.create({
       customer,
-      usage: "off_session", // you plan to charge later, when user may be absent
-      payment_method_types: ["card"], // default, but explicit is fine
+      usage: "off_session",
+      payment_method_types: ["card"],
     });
 
     res.json({ clientSecret: si.client_secret, customerId: customer });
