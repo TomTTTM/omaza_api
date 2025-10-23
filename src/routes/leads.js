@@ -6,7 +6,7 @@ const auth = require("../middleware/auth");
 const router = express.Router();
 
 // POST /api/leads/meta  ← super simple receiver
-router.post("/leads", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const b = req.body;
 
