@@ -1,7 +1,6 @@
 const express = require("express");
 const { fn, col, where } = require("sequelize");
-const { User } = require("../models");
-const { Lead } = require("../models");
+const { User, Lead } = require("../../models");
 
 const router = express.Router();
 
