@@ -17,7 +17,7 @@ router.post("/", async (req, res) => {
       : null;
 
     const lead = await Lead.create({
-      user_id: user ? user.id : null,
+      user_id: b.user_id || null,
       created_time: b.created_time ? new Date(b.created_time) : new Date(),
       form_name: b.form_name ?? null,
       service_requested: b["what_service_are_you_looking_for?"] ?? null,
