@@ -20,14 +20,14 @@ router.post("/", async (req, res) => {
       user_id: b.user_id || null,
       created_time: b.created_time ? new Date(b.created_time) : new Date(),
       form_name: b.form_name ?? null,
-      service_requested: b["what_service_are_you_looking_for?"] ?? null,
-      description:
-        b["please_explain_with_some_detail_the_service_you_need."] ?? null,
+      service_requested: b.service_requested ?? null,
+      description: b.description ?? null,
       email: b.email ?? null,
       full_name: b.full_name ?? null,
       phone: b.phone ?? null,
       post_code: b.post_code ?? null,
       lead_status: b.lead_status ?? null,
+      lead_summary: b.lead_summary ?? null,
       source: "meta",
       raw_payload: b, // keep everything for debugging
     });
