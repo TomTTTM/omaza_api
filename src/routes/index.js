@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.use("/auth", authRoutes);
 router.use("/stripe", stripeRoutes);
-app.use("/leads", leadsRoutes);
+router.use("/leads", leadsRoutes);
 
 router.get("/health", (_req, res) => res.json({ ok: true }));
 

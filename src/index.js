@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const routes = require("./routes");
-const { sequelize } = require("./config/database");
+const { sequelize } = require("../models");
 const cors = require("cors");
 
 const app = express();
@@ -43,7 +43,12 @@ app.get("/", (_req, res) => res.send("API is running"));
 async function start() {
   try {
     await sequelize.authenticate();
-    await sequelize.sync(); // For dev. For prod, prefer migrations.
+    if (process.env.NODE_ENV !== "production") {
+      // Dev-only convenience; safe default is without alter/force
+      await sequelize.sync();
+      // If you really want it, use: await sequelize.sync({ alter: true });
+      // but avoid committing that habit; prefer migrations.
+    }
     app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
   } catch (err) {
     console.error("Unable to start server:", err);
