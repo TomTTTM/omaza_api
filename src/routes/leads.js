@@ -50,7 +50,7 @@ router.get("/", auth, async (req, res) => {
       order: [["created_time", "DESC"]],
       attributes: { exclude: ["raw_payload"] }, // keep it lean
     });
-    res.json({ data: leads });
+    res.json(leads);
   } catch (err) {
     console.error("GET /api/leads error:", err);
     res.status(400).json({ error: err.message });
