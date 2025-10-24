@@ -130,36 +130,67 @@ router.get("/me", auth, async (req, res) => {
 // GET /api/stripe/me/payment-method
 router.get("/payment-method", auth, async (req, res) => {
   try {
+    // 1) Ensure the app user exists
     const appUser = await User.findByPk(req.user.id);
     if (!appUser) return res.status(404).json({ error: "User not found" });
 
     const email = (appUser.email || "").trim().toLowerCase();
-
-    if (!email)
-      return res.json({ has_payment_method: false, customerId: null });
-
-    const list = await stripe.customers.list({ email, limit: 10 });
-
-    customer = list.data[0] || null;
-
-    if (!customer) {
-      return res.json({ has_payment_method: false, customerId: null });
+    if (!email) {
+      // user exists but we can’t look up a Stripe customer without an email
+      return res.json({
+        userExists: true,
+        customerExists: false,
+        hasPaymentMethod: false,
+      });
     }
 
-    // // 3) Check attached payment methods (cards)
-    // const pms = await stripe.paymentMethods.list({
-    //   customer: customer.id,
-    //   type: "card",
-    // });
+    // 2) Find a Stripe customer by email (no creation)
+    let customer = null;
+
+    // Prefer Search (more robust)
+    try {
+      const search = await stripe.customers.search({
+        query: `email:'${email}'`,
+        limit: 10,
+      });
+      customer = (search.data || []).find((c) => !c.deleted) || null;
+    } catch (_) {
+      return res.json({
+        userExists: false,
+        customerExists: false,
+        hasPaymentMethod: false,
+      });
+    }
+
+    if (!customer) {
+      const list = await stripe.customers.list({ email, limit: 10 });
+      customer = (list.data || []).find((c) => !c.deleted) || null;
+    }
+
+    if (!customer) {
+      return res.json({
+        userExists: true,
+        customerExists: false,
+        hasPaymentMethod: false,
+      });
+    }
+
+    // 3) Check attached payment methods (cards)
+    const pms = await stripe.paymentMethods.list({
+      customer: customer.id,
+      type: "card",
+    });
 
     return res.json({
-      has_payment_method: customer.lenght !== 0,
-      // customerId: customer.id,
-      // payment_method_ids: pms.data.map((pm) => pm.id), // optional
+      userExists: true,
+      customerExists: true,
+      has_payment_method: pms.data.length > 0,
+      // customerId: customer.id, // uncomment if you want it in the response
+      // paymentMethodIds: pms.data.map(pm => pm.id), // optional
     });
   } catch (err) {
     console.error(err);
-    res.status(400).json({ error: err.message });
+    return res.status(400).json({ error: err.message });
   }
 });
 
