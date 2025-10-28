@@ -5,6 +5,14 @@ const auth = require("../middleware/auth");
 
 const router = express.Router();
 
+// --- helper: only allow these fields to be patched
+const UPDATABLE_FIELDS = new Set([
+  "lead_status",
+  "lead_notes",
+  "estimated_lifetime_value",
+  "non_conversion_reason",
+]);
+
 // POST /api/leads/meta  ← super simple receiver
 router.post("/", async (req, res) => {
   try {
@@ -71,6 +79,47 @@ router.get("/:id", auth, async (req, res) => {
     res.json({ data: lead });
   } catch (err) {
     console.error("GET /api/leads/:id error:", err);
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/**
+ * PATCH /api/leads/:id
+ * Partially updates a lead owned by the authenticated user.
+ */
+router.patch("/:id", auth, async (req, res) => {
+  try {
+    const lead = await Lead.findOne({
+      where: { id: req.params.id, user_id: req.user.id },
+    });
+    if (!lead) return res.status(404).json({ error: "Lead not found" });
+
+    const updates = {};
+    for (const [key, value] of Object.entries(req.body || {})) {
+      if (UPDATABLE_FIELDS.has(key)) {
+        updates[key] = value === undefined ? null : value;
+      }
+    }
+
+    // Optional: normalize email
+    if (typeof updates.email === "string") {
+      updates.email = updates.email.trim().toLowerCase();
+    }
+
+    // No allowed fields present?
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: "No valid fields to update" });
+    }
+
+    // Apply and save
+    lead.set(updates);
+    await lead.save();
+
+    // Keep raw_payload intact; return lean view
+    const { raw_payload, ...plain } = lead.get({ plain: true });
+    return res.json({ ok: true, data: plain });
+  } catch (err) {
+    console.error("PATCH /api/leads/:id error:", err);
     res.status(400).json({ error: err.message });
   }
 });

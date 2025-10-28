@@ -26,6 +26,9 @@ module.exports = (sequelize, DataTypes) => {
       source: DataTypes.STRING,
       lead_summary: DataTypes.STRING,
       raw_payload: DataTypes.JSONB,
+      lead_notes: { type: DataTypes.TEXT, allowNull: true },
+      non_conversion_reason: { type: DataTypes.TEXT, allowNull: true },
+      estimated_lifetime_value: { type: DataTypes.TEXT, allowNull: true },
     },
     {
       sequelize,
