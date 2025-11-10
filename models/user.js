@@ -60,7 +60,7 @@ module.exports = (sequelize, DataTypes) => {
 
       max_monthly_customers: { type: DataTypes.INTEGER, allowNull: true },
       services_starting_price: {
-        type: DataTypes.DECIMAL(10, 2),
+        type: DataTypes.STRING,
         allowNull: true,
       },
 
