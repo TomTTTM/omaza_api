@@ -40,6 +40,7 @@ module.exports = (sequelize, DataTypes) => {
       phone_number_country_id: { type: DataTypes.STRING(8), allowNull: false },
 
       password: { type: DataTypes.STRING, allowNull: false },
+      ref: { type: DataTypes.STRING, allowNull: true },
 
       // Postgres arrays
       services: {

@@ -28,6 +28,7 @@ router.post("/register", async (req, res) => {
       max_monthly_customers,
       services_starting_price,
       business_name,
+      ref,
     } = req.body;
 
     const user = await User.create({
@@ -52,6 +53,7 @@ router.post("/register", async (req, res) => {
       max_monthly_customers: max_monthly_customers ?? null,
       services_starting_price: services_starting_price ?? null,
       business_name: business_name ?? null,
+      ref,
     });
 
     const token = jwt.sign(
