@@ -74,6 +74,7 @@ router.post("/register", async (req, res) => {
         website: user.website,
         phone_number: user.phone_number,
         phone_number_country_id: user.phone_number_country_id,
+        services: user.services,
       },
       auth_token: token,
     });
