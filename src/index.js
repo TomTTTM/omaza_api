@@ -13,6 +13,7 @@ const allowlist = [
   "http://localhost:3000",
   "https://app.omaza.ai",
   "https://insurance.omaza.ai",
+  "https://app.insurance.omaza.ai",
 ];
 
 // 1) Stripe webhook must read the raw body — define BEFORE json middleware
